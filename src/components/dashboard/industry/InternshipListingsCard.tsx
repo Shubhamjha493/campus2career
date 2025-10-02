@@ -72,7 +72,7 @@ const InternshipListingsCard = () => {
                     <div className="text-right">
                       <div className="flex items-center gap-1 text-primary font-semibold">
                         <Users className="h-4 w-4" />
-                        <span>{internship.applications || 0} applications</span>
+                        <span>{internship.applicationsCount || 0} applications</span>
                       </div>
                       <div className="flex gap-1 mt-1 flex-wrap justify-end">
                         {internship.type === "college-specific" && internship.selectedColleges?.length > 0 && (
@@ -127,7 +127,7 @@ const InternshipListingsCard = () => {
                     <div className="text-right">
                       <Badge variant="outline">Closed</Badge>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {internship.applications || 0} applications • {internship.hired || 0} hired
+                        {internship.applicationsCount || 0} applications • {internship.hired || 0} hired
                       </p>
                     </div>
                   </div>

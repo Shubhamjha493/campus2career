@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileText, CheckCircle, XCircle, Award, GraduationCap, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,60 +20,71 @@ interface Application {
   internship: string;
   status: "applied" | "shortlisted" | "hired" | "rejected";
   appliedDate: string;
-  cgpa: number;
+  cgpa: number | string;
   isYourCollege?: boolean;
+  email?: string;
+  phone?: string;
+  semester?: string;
+  skills?: string[];
 }
 
 const ApplicationsTrackerCard = () => {
   const [selectedInternship, setSelectedInternship] = useState("all");
   const [selectedResume, setSelectedResume] = useState<Application | null>(null);
-  const [applications, setApplications] = useState<Application[]>([
-    {
-      id: 1,
-      studentName: "Rahul Sharma",
-      college: "IIT Delhi",
-      internship: "Frontend Developer",
-      status: "applied",
-      appliedDate: "2 days ago",
-      cgpa: 8.5,
-      isYourCollege: true,
-    },
-    {
-      id: 2,
-      studentName: "Priya Singh",
-      college: "NIT Trichy",
-      internship: "Frontend Developer",
-      status: "shortlisted",
-      appliedDate: "3 days ago",
-      cgpa: 8.9,
-    },
-    {
-      id: 3,
-      studentName: "Amit Kumar",
-      college: "BITS Pilani",
-      internship: "Data Analyst",
-      status: "applied",
-      appliedDate: "1 day ago",
-      cgpa: 8.2,
-      isYourCollege: true,
-    },
-    {
-      id: 4,
-      studentName: "Sneha Patel",
-      college: "IIT Bombay",
-      internship: "UI/UX Designer",
-      status: "hired",
-      appliedDate: "1 week ago",
-      cgpa: 9.1,
-    },
-  ]);
+  const [applications, setApplications] = useState<Application[]>([]);
+
+  // Load applications from localStorage
+  useEffect(() => {
+    const loadApplications = () => {
+      const industryApps = JSON.parse(localStorage.getItem("industry_applications") || "[]");
+      
+      // Transform to Application format
+      const formattedApps = industryApps.map((app: any) => ({
+        id: app.id,
+        studentName: app.studentName,
+        college: app.college,
+        internship: app.role,
+        status: app.status === "pending" ? "applied" : app.status,
+        appliedDate: app.appliedDate,
+        cgpa: app.cgpa,
+        email: app.studentEmail,
+        phone: app.phone,
+        semester: app.semester,
+        skills: app.skills,
+        isYourCollege: app.college?.toLowerCase().includes("bit sindri")
+      }));
+      
+      setApplications(formattedApps);
+    };
+
+    loadApplications();
+    
+    // Refresh periodically
+    const interval = setInterval(loadApplications, 1000);
+    window.addEventListener('storage', loadApplications);
+    window.addEventListener('internship-updated', loadApplications);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', loadApplications);
+      window.removeEventListener('internship-updated', loadApplications);
+    };
+  }, []);
 
   const updateStatus = (id: number, newStatus: Application["status"]) => {
     const app = applications.find(a => a.id === id);
     
+    // Update in state
     setApplications(apps =>
       apps.map(app => app.id === id ? { ...app, status: newStatus } : app)
     );
+
+    // Update in localStorage
+    const industryApps = JSON.parse(localStorage.getItem("industry_applications") || "[]");
+    const updatedApps = industryApps.map((a: any) => 
+      a.id === id ? { ...a, status: newStatus === "applied" ? "pending" : newStatus } : a
+    );
+    localStorage.setItem("industry_applications", JSON.stringify(updatedApps));
 
     if (newStatus === "hired") {
       toast.success(`Hired successfully and sent email to ${app?.studentName}! 🎉`);
@@ -86,9 +97,9 @@ const ApplicationsTrackerCard = () => {
         college: app.college,
         internship: app.internship,
         cgpa: app.cgpa,
-        skills: ["React", "TypeScript", "Node.js", "Database Design"],
-        email: `${app.studentName.toLowerCase().replace(/\s+/g, '.')}@student.edu`,
-        phone: "+91 98765 43210",
+        skills: app.skills || ["React", "TypeScript", "Node.js", "Database Design"],
+        email: app.email || `${app.studentName.toLowerCase().replace(/\s+/g, '.')}@student.edu`,
+        phone: app.phone || "+91 98765 43210",
         isYourCollege: app.isYourCollege
       };
       
