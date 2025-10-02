@@ -44,35 +44,73 @@ const PostInternshipCard = () => {
     const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSyBzvLZiTYIGGm98OScTgwOUKnk7bhlHAU2j9nyxnkpBSp+zPDajz4JFF+28OqnVRQJRZ/h88BtIQUsgc7y2Ik2CBhqvvDknE4MDlCp5O24ZRwENI/Z8sZ5KQUpfszw2o8+CRVftPDqp1UUCUSe4fPAbSEFLIHO8tmJNggZa77w5JxODA5QqeTtuGUcBDSP2fLGeSgFK37M8NqPPgkVX7Tw6qdVFAlEn+HzwG0hBSyBzvLZiTYIGWy+8OScTgwOUKnk7bhlHAU0j9nyxnkoBSx+zPDajz4JFF+08OqnVRQKQ5/h88BtIQUsgc7y2Yk2CBlsvvDknE4MDlCp5O24ZRwFNI/Z8sZ5KAUsfszw2o8+CRVftPDqp1UUCkSf4fPAbSEFLIHO8tmJNggZa77w5JxODA5QqeTtuGUcBTSP2fLGeSgFLH7M8NqPPgkUX7Tw6qdVFApDn+HzwG0hBSyBzvLZiTYIGWu+8OScTgwOUKnk7bhlHAU0j9nyxnkoBSx+zPDajz4JFF+08OqnVRQKQ5/h88BtIQUsgc7y2Yk2CBlrvvDknE4MDlCp5O24ZRwFNI/Z8sZ5KAUsfs==");
     audio.play().catch(() => {});
 
-    // Store in localStorage for admin approval
-    const pendingInternships = JSON.parse(localStorage.getItem("pending_internships") || "[]");
     const newInternship = {
       ...formData,
       type: internshipType,
       company: "Infosys",
-      status: "pending",
       id: Date.now(),
       postedDate: new Date().toISOString(),
+      selectedColleges: internshipType === "college-specific" ? selectedColleges : [],
     };
-    pendingInternships.push(newInternship);
-    localStorage.setItem("pending_internships", JSON.stringify(pendingInternships));
 
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-      setShowForm(false);
-      setFormData({
-        title: "",
-        duration: "",
-        stipend: "",
-        mode: "",
-        eligibilityYear: "",
-        eligibilityBranch: "",
-        description: "",
-        colleges: "",
+    if (internshipType === "universal") {
+      // Universal internships - auto approve after 10 seconds
+      setShowSuccess(true);
+      
+      setTimeout(() => {
+        // Auto-approve and add to my internships
+        const myInternships = JSON.parse(localStorage.getItem("my_internships") || "[]");
+        myInternships.push({
+          ...newInternship,
+          status: "active",
+          applications: 0,
+        });
+        localStorage.setItem("my_internships", JSON.stringify(myInternships));
+        
+        toast.success("Internship approved and posted successfully!");
+        
+        setShowSuccess(false);
+        setShowForm(false);
+        setFormData({
+          title: "",
+          duration: "",
+          stipend: "",
+          mode: "",
+          eligibilityYear: "",
+          eligibilityBranch: "",
+          description: "",
+          colleges: "",
+        });
+        setInternshipType("");
+        setSelectedColleges([]);
+      }, 10000); // 10 seconds
+    } else {
+      // College-specific internships - need admin approval
+      const pendingInternships = JSON.parse(localStorage.getItem("pending_internships") || "[]");
+      pendingInternships.push({
+        ...newInternship,
+        status: "pending",
       });
-      setInternshipType("");
-    }, 3000);
+      localStorage.setItem("pending_internships", JSON.stringify(pendingInternships));
+
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setShowForm(false);
+        setFormData({
+          title: "",
+          duration: "",
+          stipend: "",
+          mode: "",
+          eligibilityYear: "",
+          eligibilityBranch: "",
+          description: "",
+          colleges: "",
+        });
+        setInternshipType("");
+        setSelectedColleges([]);
+      }, 3000);
+    }
   };
 
   return (
@@ -104,7 +142,9 @@ const PostInternshipCard = () => {
                 <CheckCircle className="h-20 w-20 text-green-500 animate-pulse" />
                 <h3 className="text-2xl font-bold text-center">Internship Submitted!</h3>
                 <p className="text-muted-foreground text-center">
-                  Waiting for Admin approval...
+                  {internshipType === "universal" 
+                    ? "Processing your internship... (Auto-approving in 10 seconds)" 
+                    : "Waiting for Admin approval..."}
                 </p>
               </motion.div>
             ) : (
