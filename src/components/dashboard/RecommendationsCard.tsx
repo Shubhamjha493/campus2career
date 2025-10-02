@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Sparkles, Building2, MapPin, Clock } from "lucide-react";
+import { Sparkles, Building2, MapPin, Clock, CheckCircle, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const RecommendationsCard = () => {
   const [open, setOpen] = useState(false);
+  const [appliedIds, setAppliedIds] = useState<number[]>([]);
+  const [skillMismatch, setSkillMismatch] = useState<{ id: number; missing: string[] } | null>(null);
+  const { toast } = useToast();
 
   const recommendations = [
     { 
@@ -15,6 +20,7 @@ export const RecommendationsCard = () => {
       company: "Amazon", 
       location: "Bangalore",
       duration: "6 months",
+      stipend: "₹50,000/mo",
       match: 95,
       skills: ["Python", "Node.js", "AWS"]
     },
@@ -24,19 +30,77 @@ export const RecommendationsCard = () => {
       company: "Microsoft", 
       location: "Hyderabad",
       duration: "3 months",
+      stipend: "₹60,000/mo",
       match: 88,
-      skills: ["Python", "ML", "TensorFlow"]
+      skills: ["Python", "Machine Learning", "TensorFlow"]
     },
     { 
       id: 3, 
-      role: "Business Analyst", 
-      company: "Deloitte", 
+      role: "Full Stack Developer", 
+      company: "Google", 
       location: "Mumbai",
       duration: "4 months",
-      match: 82,
-      skills: ["Excel", "SQL", "Analytics"]
+      stipend: "₹55,000/mo",
+      match: 92,
+      skills: ["React", "Node.js", "MongoDB"]
     }
   ];
+
+  const handleApply = (recommendation: any) => {
+    // Get student skills from localStorage
+    const studentSkills = JSON.parse(localStorage.getItem("student_skills") || "[]");
+    
+    // Normalize skills for comparison (lowercase, trim)
+    const normalizedStudentSkills = studentSkills.map((s: string) => s.toLowerCase().trim());
+    const normalizedRequiredSkills = recommendation.skills.map((s: string) => s.toLowerCase().trim());
+    
+    // Check which skills are missing
+    const missingSkills = recommendation.skills.filter((skill: string) => {
+      const normalizedSkill = skill.toLowerCase().trim();
+      return !normalizedStudentSkills.some((studentSkill: string) => {
+        // Check for partial matches (e.g., "ML" matches "Machine Learning")
+        return studentSkill.includes(normalizedSkill) || normalizedSkill.includes(studentSkill);
+      });
+    });
+
+    if (missingSkills.length === 0) {
+      // Skills match - apply successfully
+      const newApplication = {
+        id: recommendation.id + 1000, // Unique ID
+        role: recommendation.role,
+        company: recommendation.company,
+        location: recommendation.location,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        status: "Application Submitted"
+      };
+
+      // Get existing applications
+      const existingApps = JSON.parse(localStorage.getItem("applied_internships") || "[]");
+      existingApps.push(newApplication);
+      localStorage.setItem("applied_internships", JSON.stringify(existingApps));
+
+      // Mark as applied
+      setAppliedIds([...appliedIds, recommendation.id]);
+      setSkillMismatch(null);
+
+      // Show success toast
+      toast({
+        title: "✅ Application Submitted Successfully!",
+        description: `Your application for ${recommendation.role} at ${recommendation.company} has been submitted. Check the Applied section.`,
+        className: "bg-green-50 border-green-200",
+      });
+    } else {
+      // Skills don't match
+      setSkillMismatch({ id: recommendation.id, missing: missingSkills });
+
+      // Show error toast
+      toast({
+        title: "❌ Doesn't Fit Your Profile",
+        description: `You're missing: ${missingSkills.join(", ")}. Update your skills in the Profile section.`,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <>
@@ -121,8 +185,29 @@ export const RecommendationsCard = () => {
                   </div>
                 </div>
 
-                <Button className="w-full bg-gradient-primary text-white hover:opacity-90 transition-smooth">
-                  Apply Now
+                {skillMismatch?.id === rec.id && (
+                  <Alert className="mb-4 border-destructive/50 bg-destructive/10 animate-fade-in">
+                    <XCircle className="h-4 w-4 text-destructive" />
+                    <AlertDescription className="text-sm">
+                      <span className="font-semibold">Missing Skills: </span>
+                      {skillMismatch.missing.join(", ")}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <Button 
+                  className="w-full bg-gradient-primary text-white hover:opacity-90 transition-smooth"
+                  onClick={() => handleApply(rec)}
+                  disabled={appliedIds.includes(rec.id)}
+                >
+                  {appliedIds.includes(rec.id) ? (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Applied
+                    </>
+                  ) : (
+                    "Apply Now"
+                  )}
                 </Button>
               </div>
             ))}

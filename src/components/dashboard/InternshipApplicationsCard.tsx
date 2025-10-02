@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +23,21 @@ export const InternshipApplicationsCard = () => {
     { id: 7, role: "Frontend Developer", company: "Infosys", location: "Hyderabad", duration: "4 months", stipend: "₹30,000/mo", isCollegeSpecific: false },
     { id: 8, role: "AI Intern", company: "Microsoft", location: "Pune", duration: "6 months", stipend: "₹60,000/mo", isCollegeSpecific: false }
   ]);
+
+  // Load applications from localStorage when dialog opens
+  useEffect(() => {
+    if (open) {
+      const savedApps = JSON.parse(localStorage.getItem("applied_internships") || "[]");
+      if (savedApps.length > 0) {
+        // Merge with existing applications, avoiding duplicates
+        const existingIds = appliedApplications.map(app => app.id);
+        const newApps = savedApps.filter((app: any) => !existingIds.includes(app.id));
+        if (newApps.length > 0) {
+          setAppliedApplications([...appliedApplications, ...newApps]);
+        }
+      }
+    }
+  }, [open]);
 
   const applications = {
     applied: appliedApplications,
