@@ -54,7 +54,8 @@ export const NotificationsCard = () => {
         }
       ];
   
-      const allNotifications = [...storedNotifications, ...internshipNotifications, ...defaultNotifications];
+      // Sort notifications by time (newest first)
+      const allNotifications = [...internshipNotifications, ...storedNotifications, ...defaultNotifications];
       setNotifications(allNotifications);
     };
 

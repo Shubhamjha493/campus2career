@@ -17,12 +17,7 @@ export const InternshipApplicationsCard = () => {
   const [appliedApplications, setAppliedApplications] = useState([
     { id: 1, role: "Frontend Developer", company: "Infosys", location: "Bangalore", date: "Sept 25, 2025", status: "Under Review" }
   ]);
-  const [availableInternships, setAvailableInternships] = useState([
-    { id: 5, role: "Backend Developer", company: "Amazon", location: "Bangalore", duration: "6 months", stipend: "₹50,000/mo", isCollegeSpecific: false },
-    { id: 6, role: "Data Analyst", company: "TCS", location: "Your College", duration: "3 months", stipend: "₹25,000/mo", isCollegeSpecific: true },
-    { id: 7, role: "Frontend Developer", company: "Infosys", location: "Hyderabad", duration: "4 months", stipend: "₹30,000/mo", isCollegeSpecific: false },
-    { id: 8, role: "AI Intern", company: "Microsoft", location: "Pune", duration: "6 months", stipend: "₹60,000/mo", isCollegeSpecific: false }
-  ]);
+  const [availableInternships, setAvailableInternships] = useState<any[]>([]);
 
   // Load applications from localStorage when dialog opens
   useEffect(() => {
@@ -38,6 +33,42 @@ export const InternshipApplicationsCard = () => {
       }
     }
   }, [open]);
+
+  // Load industry-created internships
+  useEffect(() => {
+    const loadInternships = () => {
+      const myInternships = JSON.parse(localStorage.getItem("my_internships") || "[]");
+      const activeInternships = myInternships.filter((i: any) => i.status === "active");
+      
+      // Transform to available internship format
+      const formatted = activeInternships.map((internship: any) => ({
+        id: internship.id,
+        role: internship.title,
+        company: internship.company,
+        location: internship.mode === "remote" ? "Remote" : internship.location || "On-site",
+        duration: internship.duration,
+        stipend: internship.stipend,
+        type: internship.type,
+        isCollegeSpecific: internship.type === "college-specific",
+        isUniversal: internship.type === "universal"
+      }));
+      
+      setAvailableInternships(formatted);
+    };
+
+    loadInternships();
+    
+    // Listen for internship updates
+    const interval = setInterval(loadInternships, 1000);
+    window.addEventListener('storage', loadInternships);
+    window.addEventListener('internship-updated', loadInternships);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', loadInternships);
+      window.removeEventListener('internship-updated', loadInternships);
+    };
+  }, []);
 
   const applications = {
     applied: appliedApplications,
@@ -79,6 +110,41 @@ export const InternshipApplicationsCard = () => {
     
     // Remove from available internships
     setAvailableInternships(prev => prev.filter(item => item.id !== internship.id));
+
+    // Add to industry's applications tracker
+    const industryApplications = JSON.parse(localStorage.getItem("industry_applications") || "[]");
+    const applicationForIndustry = {
+      id: Date.now(),
+      internshipId: internship.id,
+      studentName: profileData.name,
+      studentEmail: profileData.email,
+      role: internship.role,
+      company: internship.company,
+      college: profileData.college,
+      semester: profileData.semester,
+      cgpa: profileData.cgpa,
+      skills: profileData.skills,
+      phone: profileData.phone,
+      appliedDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      status: "pending"
+    };
+    
+    industryApplications.push(applicationForIndustry);
+    localStorage.setItem("industry_applications", JSON.stringify(industryApplications));
+
+    // Update internship application count
+    const myInternships = JSON.parse(localStorage.getItem("my_internships") || "[]");
+    const updatedInternships = myInternships.map((i: any) => {
+      if (i.id === internship.id) {
+        return { ...i, applicationsCount: (i.applicationsCount || 0) + 1 };
+      }
+      return i;
+    });
+    localStorage.setItem("my_internships", JSON.stringify(updatedInternships));
+    
+    // Trigger events to update UI
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('internship-updated'));
   };
 
   return (
@@ -278,7 +344,16 @@ const InternshipCard = ({ internship, onApply }: any) => {
             {internship.isCollegeSpecific && (
               <Badge className="bg-accent text-accent-foreground text-xs flex items-center gap-1">
                 <GraduationCap className="w-3 h-3" />
-                Your College
+                College Specific
+              </Badge>
+            )}
+            {internship.isUniversal && (
+              <Badge variant="outline" className="text-xs flex items-center gap-1 border-primary/30 text-primary">
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+                Universal
               </Badge>
             )}
           </div>
