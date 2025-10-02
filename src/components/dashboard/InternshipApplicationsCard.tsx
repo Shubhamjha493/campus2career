@@ -14,25 +14,14 @@ export const InternshipApplicationsCard = () => {
   const [companyFilter, setCompanyFilter] = useState("all");
   const [durationFilter, setDurationFilter] = useState("all");
   const [stipendFilter, setStipendFilter] = useState("all");
-  const [appliedApplications, setAppliedApplications] = useState([
-    { id: 1, role: "Frontend Developer", company: "Infosys", location: "Bangalore", date: "Sept 25, 2025", status: "Under Review" }
-  ]);
+  const [appliedApplications, setAppliedApplications] = useState<any[]>([]);
   const [availableInternships, setAvailableInternships] = useState<any[]>([]);
 
-  // Load applications from localStorage when dialog opens
+  // Load applied applications from localStorage on mount
   useEffect(() => {
-    if (open) {
-      const savedApps = JSON.parse(localStorage.getItem("applied_internships") || "[]");
-      if (savedApps.length > 0) {
-        // Merge with existing applications, avoiding duplicates
-        const existingIds = appliedApplications.map(app => app.id);
-        const newApps = savedApps.filter((app: any) => !existingIds.includes(app.id));
-        if (newApps.length > 0) {
-          setAppliedApplications([...appliedApplications, ...newApps]);
-        }
-      }
-    }
-  }, [open]);
+    const savedApps = JSON.parse(localStorage.getItem("student_applied_internships") || "[]");
+    setAppliedApplications(savedApps);
+  }, []);
 
   // Load industry-created internships
   useEffect(() => {
@@ -42,7 +31,7 @@ export const InternshipApplicationsCard = () => {
       
       // Transform to available internship format
       const formatted = activeInternships.map((internship: any) => ({
-        id: internship.id,
+        id: `industry-${internship.id}`,
         role: internship.title,
         company: internship.company,
         location: internship.mode === "remote" ? "Remote" : internship.location || "On-site",
@@ -50,10 +39,24 @@ export const InternshipApplicationsCard = () => {
         stipend: internship.stipend,
         type: internship.type,
         isCollegeSpecific: internship.type === "college-specific",
-        isUniversal: internship.type === "universal"
+        isUniversal: internship.type === "universal",
+        originalId: internship.id
       }));
+
+      // Add dummy internships
+      const dummyInternships = [
+        { id: "dummy-1", role: "Backend Developer", company: "Amazon", location: "Bangalore", duration: "6 months", stipend: "₹50,000/mo", isCollegeSpecific: false, isUniversal: true },
+        { id: "dummy-2", role: "Data Analyst", company: "TCS", location: "Your College", duration: "3 months", stipend: "₹25,000/mo", isCollegeSpecific: true, isUniversal: false },
+        { id: "dummy-3", role: "Frontend Developer", company: "Infosys", location: "Hyderabad", duration: "4 months", stipend: "₹30,000/mo", isCollegeSpecific: false, isUniversal: true },
+        { id: "dummy-4", role: "AI Intern", company: "Microsoft", location: "Pune", duration: "6 months", stipend: "₹60,000/mo", isCollegeSpecific: false, isUniversal: true },
+        { id: "dummy-5", role: "Full Stack Developer", company: "Wipro", location: "Remote", duration: "5 months", stipend: "₹40,000/mo", isCollegeSpecific: true, isUniversal: false }
+      ];
+
+      // Get already applied internships to filter them out
+      const appliedIds = JSON.parse(localStorage.getItem("student_applied_internships") || "[]").map((app: any) => app.id);
+      const availableDummies = dummyInternships.filter(d => !appliedIds.includes(d.id));
       
-      setAvailableInternships(formatted);
+      setAvailableInternships([...formatted, ...availableDummies]);
     };
 
     loadInternships();
@@ -102,45 +105,49 @@ export const InternshipApplicationsCard = () => {
       company: internship.company,
       location: internship.location,
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      status: "Application Submitted"
+      status: "Under Review"
     };
 
-    // Add to applied applications
-    setAppliedApplications(prev => [...prev, newApplication]);
+    // Add to applied applications (state and localStorage)
+    const updatedApplied = [...appliedApplications, newApplication];
+    setAppliedApplications(updatedApplied);
+    localStorage.setItem("student_applied_internships", JSON.stringify(updatedApplied));
     
     // Remove from available internships
     setAvailableInternships(prev => prev.filter(item => item.id !== internship.id));
 
-    // Add to industry's applications tracker
-    const industryApplications = JSON.parse(localStorage.getItem("industry_applications") || "[]");
-    const applicationForIndustry = {
-      id: Date.now(),
-      internshipId: internship.id,
-      studentName: profileData.name,
-      studentEmail: profileData.email,
-      role: internship.role,
-      company: internship.company,
-      college: profileData.college,
-      semester: profileData.semester,
-      cgpa: profileData.cgpa,
-      skills: profileData.skills,
-      phone: profileData.phone,
-      appliedDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      status: "pending"
-    };
-    
-    industryApplications.push(applicationForIndustry);
-    localStorage.setItem("industry_applications", JSON.stringify(industryApplications));
+    // Only add to industry's applications tracker if it's an industry-created internship
+    if (internship.originalId) {
+      const industryApplications = JSON.parse(localStorage.getItem("industry_applications") || "[]");
+      const applicationForIndustry = {
+        id: Date.now(),
+        internshipId: internship.originalId,
+        studentName: profileData.name,
+        studentEmail: profileData.email,
+        role: internship.role,
+        company: internship.company,
+        college: profileData.college,
+        semester: profileData.semester,
+        cgpa: profileData.cgpa,
+        skills: profileData.skills,
+        phone: profileData.phone,
+        appliedDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        status: "pending"
+      };
+      
+      industryApplications.push(applicationForIndustry);
+      localStorage.setItem("industry_applications", JSON.stringify(industryApplications));
 
-    // Update internship application count
-    const myInternships = JSON.parse(localStorage.getItem("my_internships") || "[]");
-    const updatedInternships = myInternships.map((i: any) => {
-      if (i.id === internship.id) {
-        return { ...i, applicationsCount: (i.applicationsCount || 0) + 1 };
-      }
-      return i;
-    });
-    localStorage.setItem("my_internships", JSON.stringify(updatedInternships));
+      // Update internship application count
+      const myInternships = JSON.parse(localStorage.getItem("my_internships") || "[]");
+      const updatedInternships = myInternships.map((i: any) => {
+        if (i.id === internship.originalId) {
+          return { ...i, applicationsCount: (i.applicationsCount || 0) + 1 };
+        }
+        return i;
+      });
+      localStorage.setItem("my_internships", JSON.stringify(updatedInternships));
+    }
     
     // Trigger events to update UI
     window.dispatchEvent(new Event('storage'));
