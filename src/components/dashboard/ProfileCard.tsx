@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { User, GraduationCap, Code } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import studentPhoto from "@/assets/student-profile.png";
 
 export const ProfileCard = () => {
   const [open, setOpen] = useState(false);
@@ -30,9 +31,11 @@ export const ProfileCard = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center text-white font-bold text-2xl shadow-glow">
-              {profile.name.split(' ').map(n => n[0]).join('')}
-            </div>
+            <img 
+              src={studentPhoto} 
+              alt={profile.name}
+              className="w-16 h-16 rounded-full object-cover shadow-glow border-2 border-primary/20"
+            />
             <div>
               <h3 className="font-semibold text-lg">{profile.name}</h3>
               <p className="text-sm text-muted-foreground">{profile.college}</p>
@@ -45,11 +48,11 @@ export const ProfileCard = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
               <Code className="w-4 h-4 text-secondary" />
-              <span className="font-medium">Skills:</span>
+              <span className="font-medium">Technical Skills:</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {profile.skills.slice(0, 3).map((skill) => (
-                <Badge key={skill} variant="secondary" className="bg-secondary/20">
+                <Badge key={skill} variant="secondary" className="bg-secondary/20 text-foreground">
                   {skill}
                 </Badge>
               ))}
@@ -65,9 +68,11 @@ export const ProfileCard = () => {
           </DialogHeader>
           <div className="space-y-6">
             <div className="flex items-center gap-4">
-              <div className="w-24 h-24 rounded-full bg-gradient-primary flex items-center justify-center text-white font-bold text-4xl shadow-glow">
-                {profile.name.split(' ').map(n => n[0]).join('')}
-              </div>
+              <img 
+                src={studentPhoto} 
+                alt={profile.name}
+                className="w-24 h-24 rounded-full object-cover shadow-glow border-4 border-primary/20"
+              />
               <div>
                 <h3 className="text-2xl font-bold">{profile.name}</h3>
                 <p className="text-muted-foreground">{profile.college}</p>
@@ -93,7 +98,7 @@ export const ProfileCard = () => {
               </h4>
               <div className="flex flex-wrap gap-2">
                 {profile.skills.map((skill) => (
-                  <Badge key={skill} className="px-4 py-2 text-sm bg-gradient-primary text-white">
+                  <Badge key={skill} className="px-4 py-2 text-sm bg-gradient-primary text-white hover:opacity-90 transition-smooth">
                     {skill}
                   </Badge>
                 ))}
