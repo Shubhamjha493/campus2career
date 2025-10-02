@@ -5,6 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Briefcase, Building2, Calendar, MapPin, GraduationCap, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export const InternshipApplicationsCard = () => {
   const [open, setOpen] = useState(false);
@@ -12,11 +14,18 @@ export const InternshipApplicationsCard = () => {
   const [companyFilter, setCompanyFilter] = useState("all");
   const [durationFilter, setDurationFilter] = useState("all");
   const [stipendFilter, setStipendFilter] = useState("all");
+  const [appliedApplications, setAppliedApplications] = useState([
+    { id: 1, role: "Frontend Developer", company: "Infosys", location: "Bangalore", date: "Sept 25, 2025", status: "Under Review" }
+  ]);
+  const [availableInternships, setAvailableInternships] = useState([
+    { id: 5, role: "Backend Developer", company: "Amazon", location: "Bangalore", duration: "6 months", stipend: "₹50,000/mo", isCollegeSpecific: false },
+    { id: 6, role: "Data Analyst", company: "TCS", location: "Your College", duration: "3 months", stipend: "₹25,000/mo", isCollegeSpecific: true },
+    { id: 7, role: "Frontend Developer", company: "Infosys", location: "Hyderabad", duration: "4 months", stipend: "₹30,000/mo", isCollegeSpecific: false },
+    { id: 8, role: "AI Intern", company: "Microsoft", location: "Pune", duration: "6 months", stipend: "₹60,000/mo", isCollegeSpecific: false }
+  ]);
 
   const applications = {
-    applied: [
-      { id: 1, role: "Frontend Developer", company: "Infosys", location: "Bangalore", date: "Sept 25, 2025", status: "Under Review" }
-    ],
+    applied: appliedApplications,
     shortlisted: [
       { id: 2, role: "Data Analyst", company: "TCS", location: "Hyderabad", date: "Sept 20, 2025", status: "Interview Scheduled" }
     ],
@@ -28,18 +37,34 @@ export const InternshipApplicationsCard = () => {
     ]
   };
 
-  const availableInternships = [
-    { id: 5, role: "Backend Developer", company: "Amazon", location: "Bangalore", duration: "6 months", stipend: "₹50,000/mo", isCollegeSpecific: false },
-    { id: 6, role: "Data Analyst", company: "TCS", location: "Your College", duration: "3 months", stipend: "₹25,000/mo", isCollegeSpecific: true },
-    { id: 7, role: "Frontend Developer", company: "Infosys", location: "Hyderabad", duration: "4 months", stipend: "₹30,000/mo", isCollegeSpecific: false },
-    { id: 8, role: "AI Intern", company: "Microsoft", location: "Pune", duration: "6 months", stipend: "₹60,000/mo", isCollegeSpecific: false }
-  ];
+  const handleApply = (internship: any) => {
+    // Get student profile data from localStorage
+    const profileData = {
+      name: "Sneha Kumari",
+      college: "BIT Sindri",
+      semester: "5th",
+      email: "student1@campus.com",
+      phone: "+91 98765 43210",
+      cgpa: "8.5",
+      skills: JSON.parse(localStorage.getItem("student_skills") || '["C++", "Python", "Web Dev"]')
+    };
 
-  const newInternships = [
-    { id: 9, role: "Cloud Engineer", company: "Google", location: "Bangalore", duration: "5 months", stipend: "₹55,000/mo", postedDate: "2 days ago" },
-    { id: 10, role: "Mobile App Developer", company: "Zomato", location: "Delhi", duration: "4 months", stipend: "₹35,000/mo", postedDate: "3 days ago" },
-    { id: 11, role: "Business Analyst", company: "Deloitte", location: "Mumbai", duration: "6 months", stipend: "₹40,000/mo", postedDate: "5 days ago" }
-  ];
+    // Create new application with current date
+    const newApplication = {
+      id: internship.id,
+      role: internship.role,
+      company: internship.company,
+      location: internship.location,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      status: "Application Submitted"
+    };
+
+    // Add to applied applications
+    setAppliedApplications(prev => [...prev, newApplication]);
+    
+    // Remove from available internships
+    setAvailableInternships(prev => prev.filter(item => item.id !== internship.id));
+  };
 
   return (
     <>
@@ -81,13 +106,12 @@ export const InternshipApplicationsCard = () => {
             <DialogTitle className="heading-primary text-2xl">Internship Applications</DialogTitle>
           </DialogHeader>
           <Tabs defaultValue="applied" className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="applied">Applied</TabsTrigger>
               <TabsTrigger value="shortlisted">Shortlisted</TabsTrigger>
               <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
               <TabsTrigger value="completed">Completed</TabsTrigger>
               <TabsTrigger value="available">Available</TabsTrigger>
-              <TabsTrigger value="new">New</TabsTrigger>
             </TabsList>
             
             <TabsContent value="applied" className="space-y-3 mt-4">
@@ -173,15 +197,9 @@ export const InternshipApplicationsCard = () => {
 
               <div className="space-y-3 animate-fade-in">
                 {availableInternships.map((internship) => (
-                  <InternshipCard key={internship.id} internship={internship} />
+                  <InternshipCard key={internship.id} internship={internship} onApply={handleApply} />
                 ))}
               </div>
-            </TabsContent>
-
-            <TabsContent value="new" className="space-y-3 mt-4 animate-fade-in">
-              {newInternships.map((internship) => (
-                <NewInternshipCard key={internship.id} internship={internship} />
-              ))}
             </TabsContent>
           </Tabs>
         </DialogContent>
@@ -225,63 +243,56 @@ const ApplicationCard = ({ app, showProgress }: any) => (
   </div>
 );
 
-const InternshipCard = ({ internship }: any) => (
-  <div className="p-4 rounded-xl border border-border bg-gradient-to-br from-card to-muted/20 hover:border-primary/50 transition-smooth hover:scale-[1.02] duration-300 hover:shadow-xl">
-    <div className="flex items-start justify-between mb-3">
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <h4 className="font-semibold text-lg">{internship.role}</h4>
-          {internship.isCollegeSpecific && (
-            <Badge className="bg-accent text-accent-foreground text-xs flex items-center gap-1">
-              <GraduationCap className="w-3 h-3" />
-              Your College
-            </Badge>
-          )}
-        </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-          <Building2 className="w-4 h-4" />
-          <span>{internship.company}</span>
-        </div>
-      </div>
-      <Badge className="bg-primary text-primary-foreground">{internship.stipend}</Badge>
-    </div>
-    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-      <div className="flex items-center gap-1">
-        <MapPin className="w-4 h-4" />
-        {internship.location}
-      </div>
-      <div className="flex items-center gap-1">
-        <Calendar className="w-4 h-4" />
-        {internship.duration}
-      </div>
-    </div>
-  </div>
-);
+const InternshipCard = ({ internship, onApply }: any) => {
+  const { toast } = useToast();
+  
+  const handleApplyClick = () => {
+    onApply(internship);
+    toast({
+      title: "Application Submitted!",
+      description: `Your application for ${internship.role} at ${internship.company} has been submitted successfully.`,
+    });
+  };
 
-const NewInternshipCard = ({ internship }: any) => (
-  <div className="p-4 rounded-xl border border-border bg-gradient-to-br from-card to-muted/20 hover:border-secondary/50 transition-smooth hover:scale-[1.02] duration-300 hover:shadow-xl">
-    <div className="flex items-start justify-between mb-3">
-      <div className="flex-1">
-        <h4 className="font-semibold text-lg">{internship.role}</h4>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-          <Building2 className="w-4 h-4" />
-          <span>{internship.company}</span>
+  return (
+    <div className="p-4 rounded-xl border border-border bg-gradient-to-br from-card to-muted/20 hover:border-primary/50 transition-smooth hover:scale-[1.01] duration-300 hover:shadow-xl">
+      <div className="flex items-start justify-between gap-4 mb-3">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h4 className="font-semibold text-lg">{internship.role}</h4>
+            {internship.isCollegeSpecific && (
+              <Badge className="bg-accent text-accent-foreground text-xs flex items-center gap-1">
+                <GraduationCap className="w-3 h-3" />
+                Your College
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+            <Building2 className="w-4 h-4" />
+            <span>{internship.company}</span>
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <Badge className="bg-primary text-primary-foreground">{internship.stipend}</Badge>
+          <Button 
+            size="sm" 
+            onClick={handleApplyClick}
+            className="animate-fade-in hover:scale-105 transition-transform duration-200"
+          >
+            Apply Now
+          </Button>
         </div>
       </div>
-      <div className="flex flex-col items-end gap-1">
-        <Badge className="bg-secondary text-secondary-foreground">{internship.stipend}</Badge>
-        <span className="text-xs text-muted-foreground">Posted {internship.postedDate}</span>
+      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-1">
+          <MapPin className="w-4 h-4" />
+          {internship.location}
+        </div>
+        <div className="flex items-center gap-1">
+          <Calendar className="w-4 h-4" />
+          {internship.duration}
+        </div>
       </div>
     </div>
-    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-      <div className="flex items-center gap-1">
-        <MapPin className="w-4 h-4" />
-        {internship.location}
-      </div>
-      <div className="flex items-center gap-1">
-        <Calendar className="w-4 h-4" />
-        {internship.duration}
-      </div>
-    </div>
-  </div>
-);
+  );
+};

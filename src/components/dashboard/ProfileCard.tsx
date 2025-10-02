@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { User, GraduationCap, Code, Plus, X } from "lucide-react";
+import { User, GraduationCap, Code, Plus, X, Phone, Mail, Award, Github, Linkedin, Calendar, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,16 @@ export const ProfileCard = () => {
     college: "BIT Sindri",
     semester: "5th",
     email: "student1@campus.com",
-    enrollment: "BIT/2022/1234"
+    enrollment: "BIT/2022/1234",
+    phone: "+91 98765 43210",
+    dob: "15 March 2003",
+    cgpa: "8.5",
+    address: "Dhanbad, Jharkhand",
+    expectedGraduation: "May 2026",
+    github: "github.com/snehakumari",
+    linkedin: "linkedin.com/in/snehakumari",
+    resume: "Resume_Sneha_Kumari.pdf",
+    previousExperience: "Web Development Intern at TechStartup (Summer 2024)"
   };
 
   // Load skills from localStorage on mount
@@ -158,13 +167,75 @@ export const ProfileCard = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-                <p className="text-sm text-muted-foreground">Email</p>
-                <p className="font-semibold">{profile.email}</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <Mail className="w-4 h-4 text-primary" />
+                  <p className="text-sm text-muted-foreground">Email</p>
+                </div>
+                <p className="font-semibold text-sm">{profile.email}</p>
               </div>
               <div className="p-4 rounded-xl bg-accent/5 border border-accent/20">
-                <p className="text-sm text-muted-foreground">Semester</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <GraduationCap className="w-4 h-4 text-accent" />
+                  <p className="text-sm text-muted-foreground">Semester</p>
+                </div>
                 <p className="font-semibold">{profile.semester}</p>
               </div>
+              <div className="p-4 rounded-xl bg-secondary/5 border border-secondary/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <Phone className="w-4 h-4 text-secondary" />
+                  <p className="text-sm text-muted-foreground">Phone</p>
+                </div>
+                <p className="font-semibold text-sm">{profile.phone}</p>
+              </div>
+              <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <Award className="w-4 h-4 text-primary" />
+                  <p className="text-sm text-muted-foreground">CGPA</p>
+                </div>
+                <p className="font-semibold">{profile.cgpa} / 10.0</p>
+              </div>
+              <div className="p-4 rounded-xl bg-accent/5 border border-accent/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <Calendar className="w-4 h-4 text-accent" />
+                  <p className="text-sm text-muted-foreground">Expected Graduation</p>
+                </div>
+                <p className="font-semibold text-sm">{profile.expectedGraduation}</p>
+              </div>
+              <div className="p-4 rounded-xl bg-secondary/5 border border-secondary/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <MapPin className="w-4 h-4 text-secondary" />
+                  <p className="text-sm text-muted-foreground">Location</p>
+                </div>
+                <p className="font-semibold text-sm">{profile.address}</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h4 className="font-semibold text-lg">Professional Links</h4>
+              <div className="grid gap-3">
+                <div className="p-3 rounded-lg bg-muted/50 border border-border flex items-center gap-3 hover:border-primary/50 transition-smooth">
+                  <Github className="w-5 h-5 text-foreground" />
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">GitHub</p>
+                    <p className="text-sm font-medium">{profile.github}</p>
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-muted/50 border border-border flex items-center gap-3 hover:border-primary/50 transition-smooth">
+                  <Linkedin className="w-5 h-5 text-foreground" />
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">LinkedIn</p>
+                    <p className="text-sm font-medium">{profile.linkedin}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-gradient-to-br from-secondary/10 to-accent/10 border border-secondary/20">
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <Award className="w-4 h-4 text-secondary" />
+                Previous Experience
+              </h4>
+              <p className="text-sm text-muted-foreground">{profile.previousExperience}</p>
             </div>
 
             <div className="space-y-3">
