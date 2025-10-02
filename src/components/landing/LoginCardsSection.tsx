@@ -378,8 +378,15 @@ const LoginForm = ({
     } else if (portal.id === "industry") {
       setLoading(true);
       const DUMMY = { email: "industry1@campus.com", password: "Industry@123" };
+      console.log("Industry login attempt:", { 
+        inputEmail: data.companyEmail, 
+        inputPassword: data.password,
+        expectedEmail: DUMMY.email,
+        expectedPassword: DUMMY.password
+      });
       setTimeout(() => {
         const email = String(data.companyEmail || "").trim().toLowerCase();
+        console.log("Comparing:", { email, dummyEmail: DUMMY.email, match: email === DUMMY.email });
         if (email === DUMMY.email && data.password === DUMMY.password) {
           localStorage.setItem("isIndustryLoggedIn", "true");
           toast.success("Welcome to Industry Dashboard!");
