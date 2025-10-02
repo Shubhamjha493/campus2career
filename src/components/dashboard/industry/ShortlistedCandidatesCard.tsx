@@ -10,43 +10,28 @@ const ShortlistedCandidatesCard = () => {
   const [selectedResume, setSelectedResume] = useState<any | null>(null);
 
   useEffect(() => {
-    // Load from localStorage and merge with dummy data
-    const storedShortlisted = JSON.parse(localStorage.getItem("shortlisted_candidates") || "[]");
-    const dummyData = [
-    {
-      id: 1,
-      name: "Priya Singh",
-      college: "NIT Trichy",
-      internship: "Frontend Developer",
-      cgpa: 8.9,
-      skills: ["React", "TypeScript", "Tailwind"],
-      email: "priya.singh@nit.edu",
-      phone: "+91 98765 43210",
-      resumeUrl: "#",
-    },
-    {
-      id: 2,
-      name: "Rahul Verma",
-      college: "IIT Delhi",
-      internship: "Data Analyst",
-      cgpa: 8.7,
-      skills: ["Python", "SQL", "Power BI"],
-      email: "rahul.verma@iit.edu",
-      phone: "+91 98765 43211",
-      resumeUrl: "#",
-      isYourCollege: true,
-    },
-  ];
+    // Load from localStorage
+    const loadShortlisted = () => {
+      const storedShortlisted = JSON.parse(localStorage.getItem("shortlisted_candidates") || "[]");
+      setShortlisted(storedShortlisted);
+    };
+
+    loadShortlisted();
+
+    // Listen for storage changes and refresh
+    const handleStorageChange = () => {
+      loadShortlisted();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
     
-    // Merge stored and dummy data, avoiding duplicates
-    const merged = [...storedShortlisted];
-    dummyData.forEach(dummy => {
-      if (!merged.find(s => s.id === dummy.id)) {
-        merged.push(dummy);
-      }
-    });
-    
-    setShortlisted(merged);
+    // Refresh every second to catch updates
+    const interval = setInterval(loadShortlisted, 1000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -58,11 +43,16 @@ const ShortlistedCandidatesCard = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 max-h-[600px] overflow-y-auto">
-        {shortlisted.map((candidate) => (
-          <div
-            key={candidate.id}
-            className="p-4 rounded-lg border-2 hover:border-primary hover:shadow-md transition-all duration-300 bg-card"
-          >
+        {shortlisted.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            No shortlisted candidates yet. Shortlist candidates from Applications Tracker!
+          </div>
+        ) : (
+          shortlisted.map((candidate) => (
+            <div
+              key={candidate.id}
+              className="p-4 rounded-lg border-2 hover:border-primary hover:shadow-md transition-all duration-300 bg-card"
+            >
             <div className="flex justify-between items-start mb-3">
               <div>
                 <h3 className="font-semibold text-lg">{candidate.name}</h3>
@@ -113,7 +103,8 @@ const ShortlistedCandidatesCard = () => {
               View Resume
             </Button>
           </div>
-        ))}
+          ))
+        )}
       </CardContent>
 
       <Dialog open={!!selectedResume} onOpenChange={() => setSelectedResume(null)}>

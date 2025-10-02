@@ -142,9 +142,9 @@ const PostInternshipCard = () => {
                 <CheckCircle className="h-20 w-20 text-green-500 animate-pulse" />
                 <h3 className="text-2xl font-bold text-center">Internship Submitted!</h3>
                 <p className="text-muted-foreground text-center">
-                  {internshipType === "universal" 
-                    ? "Processing your internship... (Auto-approving in 10 seconds)" 
-                    : "Waiting for Admin approval..."}
+                  {internshipType === "college-specific" 
+                    ? "Waiting for Admin approval..." 
+                    : "Processing your internship..."}
                 </p>
               </motion.div>
             ) : (
