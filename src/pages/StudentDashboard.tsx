@@ -3,7 +3,6 @@ import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogOut, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ProfileCard } from "@/components/dashboard/ProfileCard";
 import { NotificationsCard } from "@/components/dashboard/NotificationsCard";
@@ -20,39 +19,24 @@ const StudentDashboard = () => {
   const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
-    // Check if user is authenticated
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        navigate("/auth");
-      } else {
-        setUserEmail(session.user.email || "");
-        setLoading(false);
-      }
-    });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
-        navigate("/auth");
-      } else {
-        setUserEmail(session.user.email || "");
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error("Error logging out");
+    // Check if student is logged in via LocalStorage
+    const isLoggedIn = localStorage.getItem("student_logged_in");
+    const email = localStorage.getItem("student_email");
+    
+    if (isLoggedIn === "true" && email) {
+      setUserEmail(email);
+      setLoading(false);
     } else {
-      toast.success("Logged out successfully");
+      toast.error("Please login first");
       navigate("/");
     }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("student_logged_in");
+    localStorage.removeItem("student_email");
+    toast.success("Logged out successfully");
+    navigate("/");
   };
 
   if (loading) {
