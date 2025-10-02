@@ -1,20 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { User, GraduationCap, Code } from "lucide-react";
+import { User, GraduationCap, Code, Plus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import studentPhoto from "@/assets/student-profile.png";
 
 export const ProfileCard = () => {
   const [open, setOpen] = useState(false);
+  const [showSkillForm, setShowSkillForm] = useState(false);
+  const [newSkill, setNewSkill] = useState("");
+  const [skills, setSkills] = useState<string[]>([]);
 
   const profile = {
     name: "Sneha Kumari",
     college: "BIT Sindri",
     semester: "5th",
-    skills: ["C++", "Python", "Web Dev", "React", "Node.js"],
     email: "student1@campus.com",
     enrollment: "BIT/2022/1234"
+  };
+
+  // Load skills from localStorage on mount
+  useEffect(() => {
+    const savedSkills = localStorage.getItem("student_skills");
+    if (savedSkills) {
+      setSkills(JSON.parse(savedSkills));
+    } else {
+      // Default skills
+      const defaultSkills = ["C++", "Python", "Web Dev", "React", "Node.js"];
+      setSkills(defaultSkills);
+      localStorage.setItem("student_skills", JSON.stringify(defaultSkills));
+    }
+  }, []);
+
+  const handleAddSkill = () => {
+    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
+      const updatedSkills = [...skills, newSkill.trim()];
+      setSkills(updatedSkills);
+      localStorage.setItem("student_skills", JSON.stringify(updatedSkills));
+      setNewSkill("");
+      setShowSkillForm(false);
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove: string) => {
+    const updatedSkills = skills.filter(skill => skill !== skillToRemove);
+    setSkills(updatedSkills);
+    localStorage.setItem("student_skills", JSON.stringify(updatedSkills));
   };
 
   return (
@@ -46,16 +80,58 @@ export const ProfileCard = () => {
             <span>Semester: <strong>{profile.semester}</strong></span>
           </div>
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <Code className="w-4 h-4 text-secondary" />
-              <span className="font-medium">Technical Skills:</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm">
+                <Code className="w-4 h-4 text-primary" />
+                <span className="font-medium">Technical Skills:</span>
+              </div>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowSkillForm(!showSkillForm);
+                }}
+                className="h-7 px-2"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
             </div>
+            
+            {showSkillForm && (
+              <div className="p-3 rounded-lg bg-muted/50 space-y-2 animate-fade-in" onClick={(e) => e.stopPropagation()}>
+                <Label htmlFor="new-skill" className="text-xs">Add New Skill</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="new-skill"
+                    value={newSkill}
+                    onChange={(e) => setNewSkill(e.target.value)}
+                    placeholder="e.g., JavaScript"
+                    className="h-8 text-sm"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        handleAddSkill();
+                      }
+                    }}
+                  />
+                  <Button size="sm" onClick={handleAddSkill} className="h-8">
+                    Add
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             <div className="flex flex-wrap gap-2">
-              {profile.skills.slice(0, 3).map((skill) => (
-                <Badge key={skill} variant="secondary" className="bg-secondary/20 text-foreground">
+              {skills.slice(0, 3).map((skill) => (
+                <Badge key={skill} className="bg-secondary text-secondary-foreground">
                   {skill}
                 </Badge>
               ))}
+              {skills.length > 3 && (
+                <Badge variant="outline" className="text-muted-foreground">
+                  +{skills.length - 3} more
+                </Badge>
+              )}
             </div>
           </div>
         </CardContent>
@@ -92,14 +168,56 @@ export const ProfileCard = () => {
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-semibold text-lg flex items-center gap-2">
-                <Code className="w-5 h-5 text-primary" />
-                Technical Skills
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-lg flex items-center gap-2">
+                  <Code className="w-5 h-5 text-primary" />
+                  Technical Skills
+                </h4>
+                <Button 
+                  size="sm" 
+                  onClick={() => setShowSkillForm(!showSkillForm)}
+                  className="gap-1"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Skill
+                </Button>
+              </div>
+              
+              {showSkillForm && (
+                <div className="p-4 rounded-lg bg-muted/50 space-y-3 animate-fade-in">
+                  <div className="space-y-2">
+                    <Label htmlFor="modal-skill">Skill Name</Label>
+                    <Input
+                      id="modal-skill"
+                      value={newSkill}
+                      onChange={(e) => setNewSkill(e.target.value)}
+                      placeholder="e.g., JavaScript, React, SQL"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleAddSkill();
+                        }
+                      }}
+                    />
+                  </div>
+                  <Button onClick={handleAddSkill} className="w-full">
+                    Add Skill
+                  </Button>
+                </div>
+              )}
+              
               <div className="flex flex-wrap gap-2">
-                {profile.skills.map((skill) => (
-                  <Badge key={skill} className="px-4 py-2 text-sm bg-gradient-primary text-white hover:opacity-90 transition-smooth">
+                {skills.map((skill) => (
+                  <Badge 
+                    key={skill} 
+                    className="px-4 py-2 text-sm bg-gradient-primary text-white hover:opacity-90 transition-smooth group relative"
+                  >
                     {skill}
+                    <button
+                      onClick={() => handleRemoveSkill(skill)}
+                      className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
                   </Badge>
                 ))}
               </div>
