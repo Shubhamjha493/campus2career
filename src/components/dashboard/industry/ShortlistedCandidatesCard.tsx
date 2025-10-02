@@ -1,0 +1,102 @@
+import { Star, FileText, Mail, Phone, GraduationCap } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+const ShortlistedCandidatesCard = () => {
+  const shortlisted = [
+    {
+      id: 1,
+      name: "Priya Singh",
+      college: "NIT Trichy",
+      internship: "Frontend Developer",
+      cgpa: 8.9,
+      skills: ["React", "TypeScript", "Tailwind"],
+      email: "priya.singh@nit.edu",
+      phone: "+91 98765 43210",
+      resumeUrl: "#",
+    },
+    {
+      id: 2,
+      name: "Rahul Verma",
+      college: "IIT Delhi",
+      internship: "Data Analyst",
+      cgpa: 8.7,
+      skills: ["Python", "SQL", "Power BI"],
+      email: "rahul.verma@iit.edu",
+      phone: "+91 98765 43211",
+      resumeUrl: "#",
+      isYourCollege: true,
+    },
+  ];
+
+  return (
+    <Card className="h-full hover:scale-105 hover:shadow-xl transition-all duration-300 rounded-2xl border-2">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Star className="h-5 w-5 text-primary" />
+          Shortlisted Candidates ({shortlisted.length})
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4 max-h-[600px] overflow-y-auto">
+        {shortlisted.map((candidate) => (
+          <div
+            key={candidate.id}
+            className="p-4 rounded-lg border-2 hover:border-primary hover:shadow-md transition-all duration-300 bg-card"
+          >
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <h3 className="font-semibold text-lg">{candidate.name}</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-sm text-muted-foreground">{candidate.college}</p>
+                  {candidate.isYourCollege && (
+                    <Badge variant="outline" className="text-xs">
+                      <GraduationCap className="h-3 w-3 mr-1" />
+                      Your College
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <Badge>CGPA: {candidate.cgpa}</Badge>
+            </div>
+
+            <div className="space-y-2 mb-3">
+              <p className="text-sm">
+                <span className="font-medium">Applied for:</span> {candidate.internship}
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {candidate.skills.map((skill, idx) => (
+                  <Badge key={idx} variant="secondary" className="text-xs">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1 mb-3 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Mail className="h-3 w-3" />
+                <span>{candidate.email}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="h-3 w-3" />
+                <span>{candidate.phone}</span>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full hover:scale-105 transition-transform"
+            >
+              <FileText className="h-3 w-3 mr-2" />
+              View Resume
+            </Button>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default ShortlistedCandidatesCard;

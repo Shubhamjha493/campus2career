@@ -375,6 +375,20 @@ const LoginForm = ({
         }
         setLoading(false);
       }, 500);
+    } else if (portal.id === "industry") {
+      setLoading(true);
+      const DUMMY = { email: "industry1@campus.com", password: "Industry@123" };
+      setTimeout(() => {
+        const email = String(data.companyEmail || "").trim().toLowerCase();
+        if (email === DUMMY.email && data.password === DUMMY.password) {
+          localStorage.setItem("isIndustryLoggedIn", "true");
+          toast.success("Welcome to Industry Dashboard!");
+          navigate("/industry-dashboard");
+        } else {
+          toast.error("Invalid credentials. Use industry1@campus.com / Industry@123");
+        }
+        setLoading(false);
+      }, 500);
     } else {
       console.log("Login data:", data);
       toast.info("This portal is for demonstration only");
