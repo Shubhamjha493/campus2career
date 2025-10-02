@@ -123,12 +123,12 @@ export const ProfileCard = () => {
             
             <div className="flex flex-wrap gap-2">
               {skills.slice(0, 3).map((skill) => (
-                <Badge key={skill} className="bg-secondary text-secondary-foreground">
+                <Badge key={skill} className="bg-primary/20 text-foreground border border-primary/30 font-medium">
                   {skill}
                 </Badge>
               ))}
               {skills.length > 3 && (
-                <Badge variant="outline" className="text-muted-foreground">
+                <Badge variant="outline" className="text-foreground border-primary/30">
                   +{skills.length - 3} more
                 </Badge>
               )}
