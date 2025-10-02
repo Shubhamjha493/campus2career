@@ -8,11 +8,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const PostInternshipCard = () => {
   const [showForm, setShowForm] = useState(false);
   const [internshipType, setInternshipType] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [selectedColleges, setSelectedColleges] = useState<string[]>([]);
+  
+  const colleges = [
+    "VIT Vellore",
+    "SRM Institute of Science and Technology",
+    "Anna University",
+    "NIT Trichy",
+    "IIT Madras",
+    "PSG College of Technology",
+    "Thiagarajar College of Engineering"
+  ];
+  
   const [formData, setFormData] = useState({
     title: "",
     duration: "",
@@ -192,12 +205,34 @@ const PostInternshipCard = () => {
                     className="space-y-2"
                   >
                     <Label>Select Colleges *</Label>
-                    <Input
-                      required
-                      value={formData.colleges}
-                      onChange={(e) => setFormData({ ...formData, colleges: e.target.value })}
-                      placeholder="Enter college names (comma-separated)"
-                    />
+                    <div className="border-2 rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto bg-card">
+                      {colleges.map((college) => (
+                        <div key={college} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={college}
+                            checked={selectedColleges.includes(college)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedColleges([...selectedColleges, college]);
+                              } else {
+                                setSelectedColleges(selectedColleges.filter(c => c !== college));
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={college}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                          >
+                            {college}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    {selectedColleges.length > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {selectedColleges.length} college(s) selected
+                      </p>
+                    )}
                   </motion.div>
                 )}
 

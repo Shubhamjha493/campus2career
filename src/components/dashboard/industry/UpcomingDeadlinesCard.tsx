@@ -1,6 +1,8 @@
-import { Clock, AlertCircle, Calendar } from "lucide-react";
+import { Clock, AlertCircle, Calendar, Bell } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const UpcomingDeadlinesCard = () => {
   const deadlines = [
@@ -32,16 +34,28 @@ const UpcomingDeadlinesCard = () => {
       date: "Oct 18, 2024",
       urgent: false,
     },
-    {
-      id: 4,
-      type: "posting",
-      title: "Backend Developer Internship",
-      description: "Application deadline",
-      daysLeft: 7,
-      date: "Oct 20, 2024",
-      urgent: false,
-    },
   ];
+
+  const handleNotify = (deadline: any) => {
+    // Play success sound
+    const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSyBzvLZiTYIGGm98OScTgwOUKnk7bhlHAU2j9nyxnkpBSp+zPDajz4JFF+28OqnVRQJRZ/h88BtIQUsgc7y2Ik2CBhqvvDknE4MDlCp5O24ZRwENI/Z8sZ5KQUpfszw2o8+CRVftPDqp1UUCUSe4fPAbSEFLIHO8tmJNggZa77w5JxODA5QqeTtuGUcBDSP2fLGeSgFK37M8NqPPgkVX7Tw6qdVFAlEn+HzwG0hBSyBzvLZiTYIGWy+8OScTgwOUKnk7bhlHAU0j9nyxnkoBSx+zPDajz4JFF+08OqnVRQKQ5/h88BtIQUsgc7y2Yk2CBlsvvDknE4MDlCp5O24ZRwFNI/Z8sZ5KAUsfszw2o8+CRVftPDqp1UUCkSf4fPAbSEFLIHO8tmJNggZa77w5JxODA5QqeTtuGUcBTSP2fLGeSgFLH7M8NqPPgkUX7Tw6qdVFApDn+HzwG0hBSyBzvLZiTYIGWu+8OScTgwOUKnk7bhlHAU0j9nyxnkoBSx+zPDajz4JFF+08OqnVRQKQ5/h88BtIQUsgc7y2Yk2CBlrvvDknE4MDlCp5O24ZRwFNI/Z8sZ5KAUsfs==");
+    audio.play().catch(() => {});
+
+    // Save notification to student dashboard
+    const notifications = JSON.parse(localStorage.getItem("student_notifications") || "[]");
+    const newNotification = {
+      id: Date.now(),
+      title: "Deadline Reminder",
+      message: `${deadline.title} - ${deadline.description}. Due on ${deadline.date}${deadline.time ? ' at ' + deadline.time : ''}`,
+      time: "Just now",
+      type: "warning",
+      read: false
+    };
+    notifications.unshift(newNotification);
+    localStorage.setItem("student_notifications", JSON.stringify(notifications));
+
+    toast.success("Notification sent successfully to students!");
+  };
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -82,10 +96,7 @@ const UpcomingDeadlinesCard = () => {
                 </div>
                 <p className="text-sm text-muted-foreground">{deadline.description}</p>
               </div>
-              <Badge
-                variant="secondary"
-                className={getTypeColor(deadline.type)}
-              >
+              <Badge variant="secondary" className={getTypeColor(deadline.type)}>
                 {deadline.type.charAt(0).toUpperCase() + deadline.type.slice(1)}
               </Badge>
             </div>
@@ -103,6 +114,16 @@ const UpcomingDeadlinesCard = () => {
                 {deadline.daysLeft} {deadline.daysLeft === 1 ? "day" : "days"} left
               </Badge>
             </div>
+
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full mt-3 hover:scale-105 transition-transform"
+              onClick={() => handleNotify(deadline)}
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              Notify Students
+            </Button>
           </div>
         ))}
       </CardContent>

@@ -6,8 +6,11 @@ import { Badge } from "@/components/ui/badge";
 
 export const NotificationsCard = () => {
   const [open, setOpen] = useState(false);
-
-  const notifications = [
+  
+  // Load notifications from localStorage
+  const storedNotifications = JSON.parse(localStorage.getItem("student_notifications") || "[]");
+  
+  const defaultNotifications = [
     {
       id: 1,
       title: "Logbook Entry Approved",
@@ -41,6 +44,8 @@ export const NotificationsCard = () => {
       icon: Bell
     }
   ];
+
+  const notifications = [...storedNotifications, ...defaultNotifications];
 
   return (
     <>
