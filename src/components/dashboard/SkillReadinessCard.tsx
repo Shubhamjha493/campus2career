@@ -48,6 +48,11 @@ export const SkillReadinessCard = () => {
     }
   };
 
+  const handleSkillChange = (value: string) => {
+    setSelectedSkill(value);
+    setShowResults(false); // Hide results when skill changes
+  };
+
   return (
     <>
       <Card 
@@ -122,7 +127,7 @@ export const SkillReadinessCard = () => {
               <div className="space-y-3">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Which tech skill to learn?</label>
-                  <Select value={selectedSkill} onValueChange={setSelectedSkill}>
+                  <Select value={selectedSkill} onValueChange={handleSkillChange}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select a skill" />
                     </SelectTrigger>

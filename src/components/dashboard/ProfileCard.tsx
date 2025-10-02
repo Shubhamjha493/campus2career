@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { User, GraduationCap, Code, Plus, X, Phone, Mail, Award, Github, Linkedin, Calendar, MapPin } from "lucide-react";
+import { User, GraduationCap, Code, Plus, X, Phone, Mail, Award, Github, Linkedin, Calendar, MapPin, FileText, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ export const ProfileCard = () => {
   const [showSkillForm, setShowSkillForm] = useState(false);
   const [newSkill, setNewSkill] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
+  const [resumeFile, setResumeFile] = useState<string | null>(null);
 
   const profile = {
     name: "Sneha Kumari",
@@ -31,7 +32,7 @@ export const ProfileCard = () => {
     previousExperience: "Web Development Intern at TechStartup (Summer 2024)"
   };
 
-  // Load skills from localStorage on mount
+  // Load skills and resume from localStorage on mount
   useEffect(() => {
     const savedSkills = localStorage.getItem("student_skills");
     if (savedSkills) {
@@ -41,6 +42,11 @@ export const ProfileCard = () => {
       const defaultSkills = ["C++", "Python", "Web Dev", "React", "Node.js"];
       setSkills(defaultSkills);
       localStorage.setItem("student_skills", JSON.stringify(defaultSkills));
+    }
+
+    const savedResume = localStorage.getItem("student_resume");
+    if (savedResume) {
+      setResumeFile(savedResume);
     }
   }, []);
 
@@ -58,6 +64,24 @@ export const ProfileCard = () => {
     const updatedSkills = skills.filter(skill => skill !== skillToRemove);
     setSkills(updatedSkills);
     localStorage.setItem("student_skills", JSON.stringify(updatedSkills));
+  };
+
+  const handleResumeUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+        const fileName = file.name;
+        setResumeFile(fileName);
+        localStorage.setItem("student_resume", fileName);
+      } else {
+        alert("Please upload a PDF file only");
+      }
+    }
+  };
+
+  const handleRemoveResume = () => {
+    setResumeFile(null);
+    localStorage.removeItem("student_resume");
   };
 
   return (
@@ -236,6 +260,54 @@ export const ProfileCard = () => {
                 Previous Experience
               </h4>
               <p className="text-sm text-muted-foreground">{profile.previousExperience}</p>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-lg flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-primary" />
+                  Resume
+                </h4>
+              </div>
+              
+              {resumeFile ? (
+                <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 animate-fade-in">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-8 h-8 text-primary" />
+                      <div>
+                        <p className="font-medium">{resumeFile}</p>
+                        <p className="text-xs text-muted-foreground">PDF Document</p>
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={handleRemoveResume}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 rounded-xl border-2 border-dashed border-border hover:border-primary/50 transition-smooth bg-muted/30">
+                  <label htmlFor="resume-upload" className="cursor-pointer flex flex-col items-center gap-2">
+                    <Upload className="w-8 h-8 text-muted-foreground" />
+                    <div className="text-center">
+                      <p className="text-sm font-medium">Upload Resume</p>
+                      <p className="text-xs text-muted-foreground">PDF format only (Max 5MB)</p>
+                    </div>
+                  </label>
+                  <input
+                    id="resume-upload"
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleResumeUpload}
+                    className="hidden"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="space-y-3">
