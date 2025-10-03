@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, CheckCircle, Clock } from "lucide-react";
+import { MessageSquare, CircleCheck as CheckCircle, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 interface Complaint {

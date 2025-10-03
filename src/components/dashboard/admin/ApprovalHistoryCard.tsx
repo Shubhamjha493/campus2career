@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { History, CheckCircle, XCircle, User, Briefcase } from "lucide-react";
+import { History, CircleCheck as CheckCircle, Circle as XCircle, User, Briefcase } from "lucide-react";
 
 interface HistoryItem {
   id: string;
