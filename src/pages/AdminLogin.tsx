@@ -18,7 +18,10 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     setTimeout(() => {
-      if (email === "admin@campus.com" && password === "Admin@123") {
+      const trimmedEmail = email.trim();
+      const trimmedPassword = password.trim();
+
+      if (trimmedEmail === "admin@campus.com" && trimmedPassword === "Admin@123") {
         localStorage.setItem("isAdminLoggedIn", "true");
         const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjGH0fPTgjMGHm7A7+OZURE=");
         audio.play().catch(() => {});
