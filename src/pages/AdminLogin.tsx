@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ShieldCheck } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -13,29 +14,54 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => {
-      const trimmedEmail = email.trim();
-      const trimmedPassword = password.trim();
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password.trim(),
+      });
 
-      if (trimmedEmail === "admin@campus.com" && trimmedPassword === "Admin@123") {
-        localStorage.setItem("isAdminLoggedIn", "true");
+      if (error) {
+        toast.error("Login Failed", {
+          description: error.message,
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (data.user) {
+        const { data: adminData, error: adminError } = await supabase
+          .from("admin_users")
+          .select("*")
+          .eq("id", data.user.id)
+          .maybeSingle();
+
+        if (adminError || !adminData) {
+          await supabase.auth.signOut();
+          toast.error("Access Denied", {
+            description: "You do not have admin privileges",
+          });
+          setIsLoading(false);
+          return;
+        }
+
         const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjGH0fPTgjMGHm7A7+OZURE=");
         audio.play().catch(() => {});
         toast.success("Login Successful!", {
           description: "Welcome to Admin Dashboard",
         });
         navigate("/admin-dashboard");
-      } else {
-        toast.error("Invalid Credentials", {
-          description: "Please check your email and password",
-        });
       }
+    } catch (err) {
+      toast.error("An error occurred", {
+        description: "Please try again later",
+      });
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
   return (
@@ -86,10 +112,16 @@ const AdminLogin = () => {
               {isLoading ? "Logging in..." : "Login to Dashboard"}
             </Button>
           </form>
-          <div className="mt-6 p-4 bg-slate-700/30 rounded-lg border border-slate-600">
-            <p className="text-xs text-slate-300 text-center mb-2 font-semibold">Demo Credentials</p>
-            <p className="text-xs text-slate-400 text-center">Email: admin@campus.com</p>
-            <p className="text-xs text-slate-400 text-center">Password: Admin@123</p>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-400">
+              Don't have an account?{" "}
+              <button
+                onClick={() => navigate("/admin-signup")}
+                className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+              >
+                Create one here
+              </button>
+            </p>
           </div>
         </CardContent>
       </Card>
