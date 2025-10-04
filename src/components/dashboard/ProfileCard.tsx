@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import studentPhoto from "@/assets/student-profile.png";
+
+const studentPhoto = "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=300";
 
 export const ProfileCard = () => {
   const [open, setOpen] = useState(false);

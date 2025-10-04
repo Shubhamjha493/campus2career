@@ -2,50 +2,42 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import studentPortal from "@/assets/student-portal.jpg";
-import facultyDashboard from "@/assets/faculty-dashboard.jpg";
-import industryCollab from "@/assets/industry-collab.jpg";
-import adminPanel from "@/assets/admin-panel.jpg";
-import skillHub from "@/assets/skill-hub.jpg";
-import autoReports from "@/assets/auto-reports.jpg";
-import notifications from "@/assets/notifications.jpg";
-
 
 const features = [
   {
     title: "Student Portal",
     description: "Comprehensive dashboard for discovering internships, tracking applications, and managing your career development journey with AI-powered recommendations",
-    image: studentPortal,
+    image: "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     title: "Faculty Dashboard",
     description: "Monitor student progress, provide mentorship, approve internships, and track outcomes with real-time analytics and communication tools",
-    image: facultyDashboard,
+    image: "https://images.pexels.com/photos/1181605/pexels-photo-1181605.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     title: "Industry Collaboration",
     description: "Connect with top educational institutions, post opportunities, recruit talented students, and build lasting partnerships with colleges",
-    image: industryCollab,
+    image: "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     title: "Admin Panel",
     description: "Complete system administration with user management, analytics, reporting, and configuration controls for seamless ecosystem management",
-    image: adminPanel,
+    image: "https://images.pexels.com/photos/1181316/pexels-photo-1181316.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     title: "Skill Hub",
     description: "Access curated learning resources, skill development programs, certifications, and training materials to enhance career readiness",
-    image: skillHub,
+    image: "https://images.pexels.com/photos/3184639/pexels-photo-3184639.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     title: "Auto Reports",
     description: "Generate NEP-compliant reports, logbooks, and certificates automatically with built-in templates and customizable formats",
-    image: autoReports,
+    image: "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
   {
     title: "Notifications",
     description: "Stay updated with real-time alerts for applications, approvals, deadlines, and important updates across all devices",
-    image: notifications,
+    image: "https://images.pexels.com/photos/4065876/pexels-photo-4065876.jpeg?auto=compress&cs=tinysrgb&w=800",
   },
 ];
 

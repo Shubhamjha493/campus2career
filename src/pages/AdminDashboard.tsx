@@ -65,37 +65,14 @@ const AdminDashboard = () => {
 
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="animate-in fade-in slide-in-from-bottom duration-500 delay-100">
-            <UserManagementCard />
-          </div>
-
-          <div className="animate-in fade-in slide-in-from-bottom duration-500 delay-150">
-            <InternshipApprovalsCard />
-          </div>
-
-          <div className="animate-in fade-in slide-in-from-bottom duration-500 delay-200">
-            <ReportsAnalyticsCard />
-          </div>
-
-          <div className="animate-in fade-in slide-in-from-bottom duration-500 delay-250">
-            <PublishNoticeCard />
-          </div>
-
-          <div className="animate-in fade-in slide-in-from-bottom duration-500 delay-300">
-            <ApprovalHistoryCard />
-          </div>
-
-          <div className="animate-in fade-in slide-in-from-bottom duration-500 delay-350">
-            <FeedbackComplaintsCard />
-          </div>
-
-          <div className="animate-in fade-in slide-in-from-bottom duration-500 delay-400">
-            <CollegeManagementCard />
-          </div>
-
-          <div className="animate-in fade-in slide-in-from-bottom duration-500 delay-450">
-            <AdminProfileCard />
-          </div>
+          <UserManagementCard />
+          <InternshipApprovalsCard />
+          <ReportsAnalyticsCard />
+          <PublishNoticeCard />
+          <ApprovalHistoryCard />
+          <FeedbackComplaintsCard />
+          <CollegeManagementCard />
+          <AdminProfileCard />
         </div>
       </main>
     </div>
