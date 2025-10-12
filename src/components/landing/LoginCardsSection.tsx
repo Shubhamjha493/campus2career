@@ -360,7 +360,9 @@ const LoginForm = ({
   });
 
   const onSubmit = async (data: any) => {
-    if (portal.id === "student") {
+    if (portal.id === "admin") {
+      navigate("/admin-login");
+    } else if (portal.id === "student") {
       setLoading(true);
       const DUMMY = { email: "student1@campus.com", password: "Student@123" };
       setTimeout(() => {
@@ -378,8 +380,8 @@ const LoginForm = ({
     } else if (portal.id === "industry") {
       setLoading(true);
       const DUMMY = { email: "industry1@campus.com", password: "Industry@123" };
-      console.log("Industry login attempt:", { 
-        inputEmail: data.companyEmail, 
+      console.log("Industry login attempt:", {
+        inputEmail: data.companyEmail,
         inputPassword: data.password,
         expectedEmail: DUMMY.email,
         expectedPassword: DUMMY.password
@@ -519,7 +521,9 @@ const RegistrationForm = ({
   });
 
   const onSubmit = async (data: any) => {
-    if (portal.id === "student") {
+    if (portal.id === "admin") {
+      navigate("/admin-signup");
+    } else if (portal.id === "student") {
       setLoading(true);
       setTimeout(() => {
         toast.success("Registration successful! Please login using the dummy credentials.");
