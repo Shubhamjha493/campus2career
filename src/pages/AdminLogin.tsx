@@ -6,7 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ShieldCheck } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+
+const DEMO_ADMIN = {
+  email: "admin@campus.com",
+  password: "admin123",
+  fullName: "Administrator",
+  role: "System Administrator"
+};
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -14,39 +20,18 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password: password.trim(),
-      });
-
-      if (error) {
-        toast.error("Login Failed", {
-          description: error.message,
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      if (data.user) {
-        const { data: adminData, error: adminError } = await supabase
-          .from("admin_users")
-          .select("*")
-          .eq("id", data.user.id)
-          .maybeSingle();
-
-        if (adminError || !adminData) {
-          await supabase.auth.signOut();
-          toast.error("Access Denied", {
-            description: "You do not have admin privileges",
-          });
-          setIsLoading(false);
-          return;
-        }
+    setTimeout(() => {
+      if (email.trim() === DEMO_ADMIN.email && password.trim() === DEMO_ADMIN.password) {
+        localStorage.setItem("adminAuth", JSON.stringify({
+          email: DEMO_ADMIN.email,
+          fullName: DEMO_ADMIN.fullName,
+          role: DEMO_ADMIN.role,
+          loginTime: new Date().toISOString()
+        }));
 
         const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjGH0fPTgjMGHm7A7+OZURE=");
         audio.play().catch(() => {});
@@ -54,14 +39,13 @@ const AdminLogin = () => {
           description: "Welcome to Admin Dashboard",
         });
         navigate("/admin-dashboard");
+      } else {
+        toast.error("Login Failed", {
+          description: "Invalid email or password. Use admin@campus.com / admin123",
+        });
       }
-    } catch (err) {
-      toast.error("An error occurred", {
-        description: "Please try again later",
-      });
-    } finally {
       setIsLoading(false);
-    }
+    }, 500);
   };
 
   return (

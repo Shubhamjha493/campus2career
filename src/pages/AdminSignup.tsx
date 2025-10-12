@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { UserPlus } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 const AdminSignup = () => {
   const navigate = useNavigate();
@@ -16,7 +15,7 @@ const AdminSignup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -31,50 +30,13 @@ const AdminSignup = () => {
 
     setIsLoading(true);
 
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password: password.trim(),
+    setTimeout(() => {
+      toast.info("Demo Mode", {
+        description: "Use admin@campus.com / admin123 to login",
       });
-
-      if (error) {
-        toast.error("Signup Failed", {
-          description: error.message,
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      if (data.user) {
-        const { error: insertError } = await supabase
-          .from("admin_users")
-          .insert({
-            id: data.user.id,
-            email: email.trim(),
-            full_name: fullName.trim(),
-            role: "admin",
-          });
-
-        if (insertError) {
-          toast.error("Failed to create admin profile", {
-            description: insertError.message,
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        toast.success("Account Created!", {
-          description: "You can now login with your credentials",
-        });
-        navigate("/admin-login");
-      }
-    } catch (err) {
-      toast.error("An error occurred", {
-        description: "Please try again later",
-      });
-    } finally {
+      navigate("/admin-login");
       setIsLoading(false);
-    }
+    }, 500);
   };
 
   return (

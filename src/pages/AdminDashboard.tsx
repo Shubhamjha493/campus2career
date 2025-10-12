@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogOut, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import UserManagementCard from "@/components/dashboard/admin/UserManagementCard";
 import InternshipApprovalsCard from "@/components/dashboard/admin/InternshipApprovalsCard";
 import ReportsAnalyticsCard from "@/components/dashboard/admin/ReportsAnalyticsCard";
@@ -19,46 +18,29 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+    const checkAuth = () => {
+      const adminAuth = localStorage.getItem("adminAuth");
 
-      if (!session) {
+      if (!adminAuth) {
         navigate("/admin-login");
         return;
       }
 
-      const { data: adminData, error } = await supabase
-        .from("admin_users")
-        .select("*")
-        .eq("id", session.user.id)
-        .maybeSingle();
-
-      if (error || !adminData) {
-        await supabase.auth.signOut();
-        toast.error("Access Denied", {
-          description: "You do not have admin privileges",
-        });
+      try {
+        const adminData = JSON.parse(adminAuth);
+        setAdminName(adminData.fullName || "Administrator");
+        setIsLoading(false);
+      } catch (error) {
+        localStorage.removeItem("adminAuth");
         navigate("/admin-login");
-        return;
       }
-
-      setAdminName(adminData.full_name);
-      setIsLoading(false);
     };
 
     checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        navigate("/admin-login");
-      }
-    });
-
-    return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    localStorage.removeItem("adminAuth");
     const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjGH0fPTgjMGHm7A7+OZURE=");
     audio.play().catch(() => {});
     toast.success("Logged out successfully");
